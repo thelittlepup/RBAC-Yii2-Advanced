@@ -4,6 +4,7 @@ namespace common\models;
 use Yii;
 use yii\base\Model;
 
+use yii\web\ForbiddenHttpException; //<-- LoginToBackend Check
 /**
  * Login form
  */
@@ -55,11 +56,18 @@ class LoginForm extends Model
      */
     public function login()
     {
-        if ($this->validate()) {
-            return Yii::$app->user->login($this->getUser(), $this->rememberMe ? 3600 * 24 * 30 : 0);
-        } else {
-            return false;
+        if (!$this->validate()) {
+          return false;
         }
+
+          if(Yii::$app->user->login($this->getUser(), $this->rememberMe ? 3600 * 24 * 30 : 0)){
+            if(Yii::$app->id=='app-backend' && !Yii::$app->user->can('loginToBackend')) {
+                Yii::$app->user->logout();
+                throw new ForbiddenHttpException('คุณไม่มีสิทธิ์เข้าใช้งานส่วนนี้ ติดต่อผู้ดูแลระบบ');
+            }
+            return true;
+          }
+          return false;
     }
 
     /**
