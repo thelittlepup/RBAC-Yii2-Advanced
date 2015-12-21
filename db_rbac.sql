@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 21, 2015 at 05:46 AM
+-- Generation Time: Dec 21, 2015 at 12:49 PM
 -- Server version: 5.6.25
 -- PHP Version: 5.6.11
 
@@ -37,10 +37,12 @@ CREATE TABLE IF NOT EXISTS `auth_assignment` (
 --
 
 INSERT INTO `auth_assignment` (`item_name`, `user_id`, `created_at`) VALUES
-('Admin', '1', 1450608532),
-('Author', '3', 1450608532),
-('Author', '5', 1450617370),
-('Management', '2', 1450608532);
+('Admin', '1', 1441170443),
+('Author', '3', 1441170443),
+('Author', '4', 1441170443),
+('Author', '5', 1441170443),
+('Author', '6', 1450698347),
+('Management', '2', 1441170443);
 
 -- --------------------------------------------------------
 
@@ -63,10 +65,14 @@ CREATE TABLE IF NOT EXISTS `auth_item` (
 --
 
 INSERT INTO `auth_item` (`name`, `type`, `description`, `rule_name`, `data`, `created_at`, `updated_at`) VALUES
-('Admin', 1, 'สำหรับการดูแลระบบ', NULL, NULL, 1450608531, 1450608531),
-('Author', 1, 'สำหรับการเขียนบทความ', NULL, NULL, 1450608531, 1450608531),
-('Management', 1, 'สำหรับจัดการข้อมูลผู้ใช้งานและบทความ', NULL, NULL, 1450608531, 1450608531),
-('ManageUser', 1, 'สำหรับจัดการข้อมูลผู้ใช้งาน', NULL, NULL, 1450608531, 1450608531);
+('Admin', 1, 'สำหรับการดูแลระบบ', NULL, NULL, 1441170443, 1441170443),
+('Author', 1, 'การเขียนบทความ', NULL, NULL, 1441170443, 1441170443),
+('createBlog', 2, 'สร้าง blog', NULL, NULL, 1441170443, 1441170443),
+('loginToBackend', 2, 'ล็อกอินเข้าใช้งานส่วน backend', NULL, NULL, 1441170443, 1441170443),
+('Management', 1, 'จัดการข้อมูลผู้ใช้งานและบทความ', NULL, NULL, 1441170443, 1441170443),
+('ManageUser', 1, 'จัดการข้อมูลผู้ใช้งาน', NULL, NULL, 1441170443, 1441170443),
+('updateBlog', 2, 'แก้ไข blog', NULL, NULL, 1441170443, 1441170443),
+('updateOwnPost', 2, 'แก้ไขบทความตัวเอง', 'isAuthor', NULL, 1441170443, 1441170443);
 
 -- --------------------------------------------------------
 
@@ -85,8 +91,12 @@ CREATE TABLE IF NOT EXISTS `auth_item_child` (
 
 INSERT INTO `auth_item_child` (`parent`, `child`) VALUES
 ('Management', 'Author'),
+('Author', 'createBlog'),
+('ManageUser', 'loginToBackend'),
 ('Admin', 'Management'),
-('Management', 'ManageUser');
+('Management', 'ManageUser'),
+('updateOwnPost', 'updateBlog'),
+('Author', 'updateOwnPost');
 
 -- --------------------------------------------------------
 
@@ -100,6 +110,13 @@ CREATE TABLE IF NOT EXISTS `auth_rule` (
   `created_at` int(11) DEFAULT NULL,
   `updated_at` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+--
+-- Dumping data for table `auth_rule`
+--
+
+INSERT INTO `auth_rule` (`name`, `data`, `created_at`, `updated_at`) VALUES
+('isAuthor', 'O:22:"common\\rbac\\AuthorRule":3:{s:4:"name";s:8:"isAuthor";s:9:"createdAt";i:1441170443;s:9:"updatedAt";i:1441170443;}', 1441170443, 1441170443);
 
 -- --------------------------------------------------------
 
@@ -117,7 +134,7 @@ CREATE TABLE IF NOT EXISTS `blog` (
   `created_by` int(11) DEFAULT NULL COMMENT 'สร้างโดย',
   `updated_at` int(11) DEFAULT NULL COMMENT 'แก้ไขวันที่',
   `updated_by` int(11) DEFAULT NULL COMMENT 'แก้ไขโดย'
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `blog`
@@ -125,7 +142,8 @@ CREATE TABLE IF NOT EXISTS `blog` (
 
 INSERT INTO `blog` (`id`, `title`, `content`, `category`, `tag`, `created_at`, `created_by`, `updated_at`, `updated_by`) VALUES
 (1, 'ทดสอบ blog 20-12-2015 6:09 PM', 'Hello World\r\nAre you happy ?', 1, 'I love you, my dear.', 1450609795, 1, 1450609795, 1),
-(4, 'User-A Create', 'How to Update this blog by user-a ?', 1, 'User-a', 1450641937, 1, 1450641937, 1);
+(4, 'User-A Create', 'How to Update this blog by user-a ?', 1, 'User-a', 1450641937, 1, 1450641937, 1),
+(5, 'ทดสอบด้วย User-C', '', 1, 'ทดสอบระบบ', 1450681885, 3, 1450698038, 3);
 
 -- --------------------------------------------------------
 
@@ -163,7 +181,7 @@ CREATE TABLE IF NOT EXISTS `user` (
   `status` smallint(6) NOT NULL DEFAULT '10',
   `created_at` int(11) NOT NULL,
   `updated_at` int(11) NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Dumping data for table `user`
@@ -174,7 +192,8 @@ INSERT INTO `user` (`id`, `username`, `auth_key`, `password_hash`, `password_res
 (2, 'user-b', 'F4nKEO9XkNSKB6wIgjrPpfAM9b3ijp6x', '$2y$13$xzXRaklPShjY8j1j01mtSeWfVqoaA.bP.cIjgmdyzI6iJt.wNqdFy', NULL, 'user-b@gmail.com', 10, 1450607852, 1450607852),
 (3, 'user-c', 'AhjRv7UToZdI2eay-OJDBI-b_EAMFGlx', '$2y$13$7MH7dYIVy0YMqaxUZPLeTeIAdStfUwLfGnNIWPUEXmxnr2PyVxJNO', NULL, 'user-c@gmail.com', 10, 1450607871, 1450607871),
 (4, 'user-d', '5SB1RPPEqFgwx3Wld7M8nmXyaGMyajbV', '$2y$13$o4bzCUyGR7VAJxrBb1o6YuLgeOgp3Obpu1oBJ.3Vrh3m3FDd481lq', NULL, 'user-d@gmail.com', 10, 1450607889, 1450607889),
-(5, 'user-e', 'Zsnw8r2DvXRBGsj7KXMmOdY9q2sQKIbb', '$2y$13$aYBclgH04rOhLf1UxWqOxOqEIEGb97Q5YtZNDQJ8B54dpm4sZmYku', NULL, 'user-e@gmail.com', 10, 1450617369, 1450617369);
+(5, 'user-e', 'Zsnw8r2DvXRBGsj7KXMmOdY9q2sQKIbb', '$2y$13$aYBclgH04rOhLf1UxWqOxOqEIEGb97Q5YtZNDQJ8B54dpm4sZmYku', NULL, 'user-e@gmail.com', 10, 1450617369, 1450617369),
+(6, 'user-f', 'uNpoXx1VxoQZznewNlzn9tt7SRbnidKS', '$2y$13$9SoW4DTzqdvXcVHnrmLbY.IaLnWG73eQY7vxp1qoFau5Ufjo1NlCe', NULL, 'user-f@gmail.com', 10, 1450698194, 1450698347);
 
 --
 -- Indexes for dumped tables
@@ -238,12 +257,12 @@ ALTER TABLE `user`
 -- AUTO_INCREMENT for table `blog`
 --
 ALTER TABLE `blog`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=6;
 --
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=7;
 --
 -- Constraints for dumped tables
 --
